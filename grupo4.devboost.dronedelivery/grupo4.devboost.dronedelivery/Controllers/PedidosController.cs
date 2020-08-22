@@ -1,10 +1,12 @@
-﻿using grupo4.devboost.dronedelivery.Data;
+﻿using Dapper;
+using grupo4.devboost.dronedelivery.Data;
 using grupo4.devboost.dronedelivery.Models;
 using grupo4.devboost.dronedelivery.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -42,6 +44,18 @@ namespace grupo4.devboost.dronedelivery.Controllers
             }
 
             return pedido;
+        }
+
+        [HttpGet("PedidosByDrone")]
+        [Route("PedidosByDrone/{id?}")]
+        public async Task<ActionResult<List<Pedido>>> PedidosByDrone(int id)
+        {
+            var pedidos = await _context.Pedido.ToListAsync();
+
+            var pedidosByDrone = pedidos.Where(_ => _.DroneId == id).ToList();
+
+            return Ok(pedidosByDrone);
+
         }
 
         // PUT: api/Pedidos/5

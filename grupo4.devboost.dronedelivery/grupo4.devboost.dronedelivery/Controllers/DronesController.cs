@@ -67,7 +67,7 @@ namespace grupo4.devboost.dronedelivery.Controllers
                                   and a.DataHoraFinalizacao > dateadd(hour,-3,CURRENT_TIMESTAMP)
                                   ) ";
 
-            using SqlConnection conexao = new SqlConnection("server=localhost;database=desafio-drone-db;user id=sa;password=minha@password");
+            using SqlConnection conexao = new SqlConnection("server=localhost;database=desafio-drone-db;user id=sa;password=l0nd0nFriends");
 
             var resultado = await conexao.QueryAsync<StatusDroneDTO>(sqlCommand);
 
