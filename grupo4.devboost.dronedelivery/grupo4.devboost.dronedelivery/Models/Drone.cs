@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace grupo4.devboost.dronedelivery.Models
 {
@@ -11,5 +12,7 @@ namespace grupo4.devboost.dronedelivery.Models
         public int Autonomia { get; set; }
         public int Carga { get; set; }
         public float Perfomance { get; set; }
+
+        public List<Pedido> pedidos { get; set; }
     }
 }

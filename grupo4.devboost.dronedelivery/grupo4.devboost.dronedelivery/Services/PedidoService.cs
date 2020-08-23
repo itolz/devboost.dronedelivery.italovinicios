@@ -24,28 +24,30 @@ namespace grupo4.devboost.dronedelivery.Services
 
         public grupo4devboostdronedeliveryContext context { get; set; }
 
-        public async Task<DroneDTO> DroneAtendePedido(Pedido pedido)
+        public async Task<DroneDTO> AtribuirPedidoDrone(Pedido pedido)
         {
-
-            double distance = GeoCalculator.GetDistance(latitudeBaseDrone, longitudeBaseDrone, pedido.Latitude, pedido.Longitude, 1, DistanceUnit.Kilometers) * 2;
-
             var drones = await _droneService.GetAll();
 
-            var buscaDrone = drones.Where(d => d.Perfomance >= distance && d.Capacidade >= pedido.Peso).FirstOrDefault();
+            foreach (var drone in drones)
+            {
+                if (DroneAtendeMaisUmPedido(drone, pedido)) return new DroneDTO(drone, 0); //abandona a rotina quando encontra um drone disponivel
+            }
 
-            if (buscaDrone == null)
-                return null;
-
-            return new DroneDTO(buscaDrone, distance);
-
+            return null;
         }
 
-        public bool DroneAtendeMaisUmPedido(Drone drone, Pedido novoPedido,  List<Pedido> sacolaPedidosDrone)
+        public bool DroneAtendeMaisUmPedido(Drone drone, Pedido novoPedido)
         {
 
-            var pedidosOrdenados = sacolaPedidosDrone.OrderBy(o => o.DataHoraInclusao);
+            //adiciona o novo pedido na sacola para calculos
+            if (drone.pedidos == null) drone.pedidos = new List<Pedido>();
+          
+                drone.pedidos.Add(novoPedido);
+
+
+            var pedidosOrdenados = drone.pedidos.OrderBy(o => o.DataHoraInclusao);
             double distanciaTotal = 0;
-            int pesoTotal = 0; 
+            int pesoTotal = 0;
             double latitudePontoParada = 0;
             double longitutePontoParada = 0;
 
@@ -57,7 +59,7 @@ namespace grupo4.devboost.dronedelivery.Services
                     distanciaTotal = GeoCalculator.GetDistance(latitudeBaseDrone, longitudeBaseDrone, pedido.Latitude, pedido.Longitude, 1, DistanceUnit.Kilometers);
                 }
                 else
-                { 
+                {
                     distanciaTotal += GeoCalculator.GetDistance(latitudePontoParada, longitutePontoParada, pedido.Latitude, pedido.Longitude, 1, DistanceUnit.Kilometers);
                 }
 
@@ -68,10 +70,15 @@ namespace grupo4.devboost.dronedelivery.Services
 
             }
 
+            //adiciona o trecho de volta a base
+            distanciaTotal += GeoCalculator.GetDistance(latitudePontoParada, longitutePontoParada, latitudeBaseDrone, longitudeBaseDrone, 1, DistanceUnit.Kilometers);
 
-            return 
+            //calcula o tempo total de viagem e seta o tempo final 
+            novoPedido.DataHoraFinalizacao = novoPedido.DataHoraInclusao.AddHours(distanciaTotal / drone.Velocidade);
 
-      
+            return drone.Capacidade >= pesoTotal && drone.Perfomance >= distanciaTotal;
+
+
         }
     }
 }

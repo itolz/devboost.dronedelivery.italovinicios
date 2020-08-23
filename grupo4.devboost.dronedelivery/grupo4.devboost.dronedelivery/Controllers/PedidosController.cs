@@ -99,21 +99,16 @@ namespace grupo4.devboost.dronedelivery.Controllers
             pedido.DroneId = null;
             pedido.DataHoraInclusao = DateTime.Now;
 
-            DroneDTO droneDTO = await _pedidoService.DroneAtendePedido(pedido);
+
+            DroneDTO droneDTO = await _pedidoService.AtribuirPedidoDrone(pedido);
+
 
             if (droneDTO != null)
             {
+
                 pedido.DroneId = droneDTO.Drone.Id;
                 pedido.Situacao = (int)EStatusPedido.DRONE_ASSOCIADO;
 
-                var calculo = (droneDTO.Distancia / droneDTO.Drone.Velocidade);
-
-                /*
-                A cada pedido que o drone atende, vamos assumir como regra que ele sempre deve voltar para base,
-                independente se ainda tem autonomia disponivel. Neste caso, estamos considerando no tempo de
-                finalizacao + 1 para considerar o tempo de carga da bateria
-                */
-                pedido.DataHoraFinalizacao = DateTime.Now.AddHours((calculo +1));
             }
             else { 
                 pedido.Situacao = (int)EStatusPedido.RECUSADO;

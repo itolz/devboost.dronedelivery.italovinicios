@@ -8,6 +8,7 @@ namespace grupo4.devboost.dronedelivery.Services
 {
     public interface IPedidoService
     {
-        Task<DroneDTO> DroneAtendePedido(Pedido pedido);
+        Task<DroneDTO> AtribuirPedidoDrone(Pedido pedido);
+        public bool DroneAtendeMaisUmPedido(Drone droneDTO, Pedido novoPedido);
     }
 }
